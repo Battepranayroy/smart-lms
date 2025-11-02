@@ -4,6 +4,7 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { connectDB } from "./config/db.js";
 import dotenv from "dotenv";
+import authRoutes from "./routes/authRoutes.js";
 
 
 
@@ -19,6 +20,7 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 
 //routes
+app.use('/api/auth',authRoutes)
 app.get('/',()=> console.log("default loading route"))
 
 //start the server;
