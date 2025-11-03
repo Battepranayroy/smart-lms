@@ -5,6 +5,9 @@ import cookieParser from "cookie-parser";
 import { connectDB } from "./config/db.js";
 import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
+import courseRoutes from "./routes/courseRoutes.js";
+import lessonRoutes from "./routes/lessonRoutes.js";
+import progressRoutes from "./routes/progressRoutes.js";
 
 
 
@@ -21,6 +24,9 @@ app.use(morgan("dev"));
 
 //routes
 app.use('/api/auth',authRoutes)
+app.use("/api/courses", courseRoutes);
+app.use("/api/lessons", lessonRoutes);
+app.use("/api/progress", progressRoutes);
 app.get('/',()=> console.log("default loading route"))
 
 //start the server;
