@@ -51,3 +51,65 @@ export const getCourseStats = async (req, res) => {
     res.status(500).json({ message: "Error fetching stats", error });
   }
 };
+
+import { Course } from '../models/courseModel.js';
+
+// Update Course
+export const updateCourse = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    // Find course
+    const course = await Course.findById(id);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Allow only instructor who created or admin to update
+    if (
+      course.instructor.toString() !== req.user._id.toString() &&
+      req.user.role !== 'admin'
+    ) {
+      return res.status(403).json({ message: 'Not authorized to update this course' });
+    }
+
+    // Update the course fields dynamically
+    Object.keys(updates).forEach((key) => {
+      course[key] = updates[key];
+    });
+
+    const updatedCourse = await course.save();
+    res.status(200).json({
+      message: 'Course updated successfully',
+      course: updatedCourse,
+    });
+  } catch (error) {
+    console.error('Error updating course:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+//  Delete Course
+export const deleteCourse = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const course = await Course.findById(id);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Only admin can delete
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Not authorized to delete this course' });
+    }
+
+    await course.deleteOne();
+
+    res.status(200).json({ message: 'Course deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting course:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};

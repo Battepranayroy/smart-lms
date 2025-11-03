@@ -6,7 +6,8 @@ const courseSchema = new mongoose.Schema({
   price: { type: Number, default: 0 },
   category: { type: String },
   instructor: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  students: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  lessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
+  studentsEnrolled: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 }, { timestamps: true });
 
 export default mongoose.model("Course", courseSchema);
