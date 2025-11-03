@@ -31,3 +31,23 @@ export const enrollCourse = async (req, res) => {
   }
   res.json({ message: "Enrolled successfully", course });
 };
+
+// Get total enrollments per course category
+export const getCourseStats = async (req, res) => {
+  try {
+    const stats = await Course.aggregate([
+      {
+        $group: {
+          _id: "$category",
+          totalCourses: { $sum: 1 },
+          averagePrice: { $avg: "$price" },
+        },
+      },
+      { $sort: { totalCourses: -1 } },
+    ]);
+
+    res.status(200).json(stats);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching stats", error });
+  }
+};
