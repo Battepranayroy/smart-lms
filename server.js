@@ -10,6 +10,7 @@ import lessonRoutes from "./routes/lessonRoutes.js";
 import progressRoutes from "./routes/progressRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import enrollRoutes from "./routes/enrollRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 
 
@@ -31,6 +32,7 @@ app.use("/api/lessons", lessonRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("api/enroll",enrollRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/admin", adminRoutes);
 app.get('/',()=> console.log("default loading route"))
 
 //start the server;
