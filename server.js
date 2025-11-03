@@ -8,6 +8,8 @@ import authRoutes from "./routes/authRoutes.js";
 import courseRoutes from "./routes/courseRoutes.js";
 import lessonRoutes from "./routes/lessonRoutes.js";
 import progressRoutes from "./routes/progressRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
+import enrollRoutes from "./routes/enrollRoutes.js";
 
 
 
@@ -27,6 +29,8 @@ app.use('/api/auth',authRoutes)
 app.use("/api/courses", courseRoutes);
 app.use("/api/lessons", lessonRoutes);
 app.use("/api/progress", progressRoutes);
+app.use("api/enroll",enrollRoutes);
+app.use("/api/reviews", reviewRoutes);
 app.get('/',()=> console.log("default loading route"))
 
 //start the server;

@@ -2,12 +2,13 @@ import Course from "../models/Course.js";
 
 // Create Course
 export const createCourse = async (req, res) => {
-  const { title, description, price, category } = req.body;
+  const { title, description, price, category,tags } = req.body;
   const course = await Course.create({
     title,
     description,
     price,
     category,
+    tags,
     instructor: req.user._id
   });
   res.status(201).json({ message: "Course created successfully", course });
@@ -113,3 +114,26 @@ export const deleteCourse = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+//better search results purpose
+
+export const searchCourses = async (req, res) => {
+  try {
+    const { title, category, tag } = req.query;
+
+    let filter = {};
+
+    if (title) filter.title = { $regex: title, $options: "i" }; // case-insensitive search
+    if (category) filter.category = category;
+    if (tag) filter.tags = tag;
+
+    const courses = await Course.find(filter)
+      .populate("instructor", "name role")
+      .populate("students", "name");
+
+    res.json({ success: true, courses });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
