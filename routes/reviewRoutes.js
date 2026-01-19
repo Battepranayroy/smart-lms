@@ -1,5 +1,5 @@
 import express from "express";
-import { addReview, getCourseReviews } from "../controllers/reviewController.js";
+import { addReview, getCourseReviews, updateReview, deleteReview } from "../controllers/reviewController.js";
 import { protect } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();

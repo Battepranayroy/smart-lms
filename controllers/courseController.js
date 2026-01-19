@@ -23,15 +23,29 @@ export const getAllCourses = async (req, res) => {
 // Enroll in course
 export const enrollCourse = async (req, res) => {
   const { courseId } = req.params;
-  const course = await Course.findById(courseId);
-  if (!course) return res.status(404).json({ message: "Course not found" });
 
-  if (!course.students.includes(req.user._id)) {
-    course.students.push(req.user._id);
-    await course.save();
+  const course = await Course.findById(courseId);
+  if (!course) {
+    return res.status(404).json({ message: "Course not found" });
   }
-  res.json({ message: "Enrolled successfully", course });
+
+  const alreadyEnrolled = course.studentsEnrolled.some(
+    studentId => studentId.toString() === req.user._id.toString()
+  );
+
+  if (alreadyEnrolled) {
+    return res.status(400).json({ message: "Already enrolled" });
+  }
+
+  course.studentsEnrolled.push(req.user._id);
+  await course.save();
+
+  res.json({
+    message: "Enrolled successfully",
+    course
+  });
 };
+
 
 // Get total enrollments per course category
 export const getCourseStats = async (req, res) => {
@@ -53,7 +67,7 @@ export const getCourseStats = async (req, res) => {
   }
 };
 
-import { Course } from '../models/courseModel.js';
+
 
 // Update Course
 export const updateCourse = async (req, res) => {
@@ -129,7 +143,7 @@ export const searchCourses = async (req, res) => {
 
     const courses = await Course.find(filter)
       .populate("instructor", "name role")
-      .populate("students", "name");
+      .populate("studentsEnrolled", "name");
 
     res.json({ success: true, courses });
   } catch (error) {

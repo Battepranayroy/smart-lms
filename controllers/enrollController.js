@@ -1,4 +1,4 @@
-import { Course } from '../models/courseModel.js';
+import  Course  from '../models/Course.js';
 
 export const enrollCourse = async (req, res) => {
   const course = await Course.findById(req.params.courseId);

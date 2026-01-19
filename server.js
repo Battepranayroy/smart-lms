@@ -33,7 +33,9 @@ app.use("/api/progress", progressRoutes);
 app.use("api/enroll",enrollRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/admin", adminRoutes);
-app.get('/',()=> console.log("default loading route"))
+app.get('/', (req, res) => {
+  res.send("Default route: Server is working!");
+});
 
 //start the server;
 app.listen(PORT,()=>{

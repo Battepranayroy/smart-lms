@@ -18,8 +18,10 @@ export const uploadLesson = async (req, res) => {
     description,
     videoUrl: `/uploads/${file.filename}`,
     duration,
+    
   });
-
+  course.lessons.push(lesson._id);
+  await course.save();
   res.status(201).json({ message: "Lesson uploaded successfully", lesson });
 };
 
@@ -32,13 +34,40 @@ export const getLessonsByCourse = async (req, res) => {
 
 // Get single lesson (with access control)
 export const getLesson = async (req, res) => {
-  const { lessonId } = req.params;
-  const lesson = await Lesson.findById(lessonId).populate("course");
-  if (!lesson) return res.status(404).json({ message: "Lesson not found" });
+  const lesson = await Lesson.findById(req.params.lessonId);
+  if (!lesson) {
+    return res.status(404).json({ message: "Lesson not found" });
+  }
 
-  const enrolled = lesson.course.students.includes(req.user._id);
-  if (!enrolled && String(req.user._id) !== String(lesson.course.instructor))
-    return res.status(403).json({ message: "Access denied to this lesson" });
+  const course = await Course.findById(lesson.course);
+  if (!course) {
+    return res.status(404).json({ message: "Course not found" });
+  }
 
-  res.json(lesson);
+  // ADMIN → always allowed
+  if (req.user.role === "admin") {
+    return res.json({ success: true, lesson });
+  }
+
+  // INSTRUCTOR → must own course
+  if (
+    req.user.role === "instructor" &&
+    course.instructor.toString() === req.user._id.toString()
+  ) {
+    return res.json({ success: true, lesson });
+  }
+
+  // STUDENT → must be enrolled
+  const enrolled = course.studentsEnrolled.some(
+    id => id.toString() === req.user._id.toString()
+  );
+
+  if (!enrolled) {
+    return res.status(403).json({
+      message: "You are not enrolled in this course"
+    });
+  }
+
+  res.json({ success: true, lesson });
 };
+
