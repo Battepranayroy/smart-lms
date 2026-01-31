@@ -18,7 +18,7 @@ export const getAllCourses = async (req, res) => {
   try {
     const courses = await Course.find()
       .populate("instructor", "name email")
-      .populate("students", "name email");
+      .populate("studentsEnrolled", "name email");
     res.json({ success: true, courses });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -42,7 +42,7 @@ export const getAllProgress = async (req, res) => {
   try {
     const progress = await Progress.find()
       .populate("user", "name email")
-      .populate("lesson", "title")
+      .populate("completedLessons", "title")
       .populate("course", "title");
     res.json({ success: true, progress });
   } catch (error) {

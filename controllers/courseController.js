@@ -16,9 +16,45 @@ export const createCourse = async (req, res) => {
 
 // Get all courses
 export const getAllCourses = async (req, res) => {
-  const courses = await Course.find().populate("instructor", "name email");
-  res.json(courses);
+  try {
+    const { title, category, minPrice, maxPrice, sort } = req.query;
+
+    let filter = {};
+
+    //  Search by title
+    if (title) {
+      filter.title = { $regex: title, $options: "i" };
+    }
+
+    // Filter by category
+    if (category) {
+      filter.category = category;
+    }
+
+    //  Price range
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = Number(minPrice);
+      if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+
+    //  Sorting
+    let sortOption = {};
+    if (sort === "priceAsc") sortOption.price = 1;
+    else if (sort === "priceDesc") sortOption.price = -1;
+    else if (sort === "rating") sortOption.averageRating = -1;
+    else sortOption.createdAt = -1; // popularity / default
+
+    const courses = await Course.find(filter)
+      .sort(sortOption)
+      .populate("instructor", "name email");
+
+    res.json(courses);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching courses", error });
+  }
 };
+
 
 // Enroll in course
 export const enrollCourse = async (req, res) => {
@@ -151,3 +187,52 @@ export const searchCourses = async (req, res) => {
   }
 };
 
+/*get catergory count to update the ui with courses count based on the category*/
+
+export const getCategoryStats = async (req, res) => {
+  const stats = await Course.aggregate([
+    {
+      $group: {
+        _id: "$category",
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+
+  res.json(stats);
+};
+
+/*featured courses*/
+export const getFeaturedCourses = async (req, res) => {
+  const courses = await Course.find()
+    .sort({ averageRating: -1 })   // highest rating first
+    .limit(4)
+    .populate("instructor", "name");
+
+  res.json(courses);
+};
+
+//get course by Id
+export const getCourseById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const course = await Course.findById(id)
+      .populate("instructor", "name")
+      .populate({
+        path: "lessons",
+        select: "title videoUrl description"
+      });
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    res.status(200).json(course);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching course",
+      error: error.message,
+    });
+  }
+};

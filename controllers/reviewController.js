@@ -12,6 +12,15 @@ export const addReview = async (req, res) => {
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
+    const enrolled = course.studentsEnrolled.some(
+  id => id.toString() === userId.toString()
+);
+
+  if (!enrolled) {
+    return res.status(403).json({
+      message: "You must enroll in the course to review it"
+    });
+  }
 
     // Create review
     const review = await Review.create({
@@ -32,6 +41,11 @@ export const addReview = async (req, res) => {
 
     res.status(201).json({ success: true, review });
   } catch (error) {
+      if (error.code === 11000) {
+      return res.status(400).json({
+        message: "You have already reviewed this course"
+      });
+    }
     res.status(500).json({ success: false, message: error.message });
   }
 };

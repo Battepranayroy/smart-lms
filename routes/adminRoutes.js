@@ -6,13 +6,14 @@ import {
   getAllProgress
 } from "../controllers/adminController.js";
 
-import { protect, admin as authorizeRoles } from "../middlewares/authMiddleware.js";
+import { protect } from "../middlewares/authMiddleware.js";
+import { authorizeRoles } from "../middlewares/roleMiddleware.js";
 
 const router = express.Router();
 
 // Only admin can access
 router.use(protect);
-router.use(authorizeRoles);
+router.use(authorizeRoles("admin"));
 
 router.get("/users", getAllUsers);
 router.get("/courses", getAllCourses);

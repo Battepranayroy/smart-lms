@@ -11,6 +11,7 @@ import progressRoutes from "./routes/progressRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import enrollRoutes from "./routes/enrollRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import path from "path";
 
 
 
@@ -19,9 +20,17 @@ const app=express();// create a server
 const PORT=process.env.PORT || 4000;
 
 //application middlewares
-
+app.use(
+  "/uploads",
+  express.static(path.join(process.cwd(), "uploads"))
+);
 app.use(express.json());
-app.use(cors());
+app.use(cors(
+  {
+    origin:"http://localhost:3000",
+    credentials:true
+  }
+));
 app.use(cookieParser());
 app.use(morgan("dev"));
 
