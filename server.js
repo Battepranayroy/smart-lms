@@ -27,7 +27,7 @@ app.use(
 app.use(express.json());
 app.use(cors(
   {
-    origin:"http://localhost:3000",
+    origin:"*",
     credentials:true
   }
 ));
@@ -47,7 +47,8 @@ app.get('/', (req, res) => {
 });
 
 //start the server;
-app.listen(PORT,()=>{
+
+app.listen(process.env.PORT || 3000,()=>{
     connectDB();
     console.log(`server running on port ${PORT}`)
 });
