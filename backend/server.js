@@ -1,0 +1,54 @@
+import express from "express";
+import cors from "cors";
+import morgan from "morgan";
+import cookieParser from "cookie-parser";
+import { connectDB } from "./config/db.js";
+import dotenv from "dotenv";
+import authRoutes from "./routes/authRoutes.js";
+import courseRoutes from "./routes/courseRoutes.js";
+import lessonRoutes from "./routes/lessonRoutes.js";
+import progressRoutes from "./routes/progressRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
+import enrollRoutes from "./routes/enrollRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import path from "path";
+
+
+
+dotenv.config();// loads all .env variables into process.env
+const app=express();// create a server
+const PORT=process.env.PORT || 4000;
+
+//application middlewares
+app.use(
+  "/uploads",
+  express.static(path.join(process.cwd(), "uploads"))
+);
+app.use(express.json());
+app.use(cors(
+  {
+    origin:"*",
+    credentials:true
+  }
+));
+app.use(cookieParser());
+app.use(morgan("dev"));
+
+//routes
+app.use('/api/auth',authRoutes)
+app.use("/api/courses", courseRoutes);
+app.use("/api/lessons", lessonRoutes);
+app.use("/api/progress", progressRoutes);
+app.use("api/enroll",enrollRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/admin", adminRoutes);
+app.get('/', (req, res) => {
+  res.send("Default route: Server is working!");
+});
+
+//start the server;
+
+app.listen(process.env.PORT || 3000,()=>{
+    connectDB();
+    console.log(`server running on port ${PORT}`)
+});
