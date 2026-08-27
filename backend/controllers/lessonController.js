@@ -2,7 +2,8 @@ import Lesson from "../models/Lesson.js";
 import Course from "../models/Course.js";
 
 // Upload a lesson
-export const uploadLesson = async (req, res) => {
+export const uploadLesson = async (req, res,next) => {
+  try {
   const { title, description, duration, courseId } = req.body;
   const file = req.file;
 
@@ -23,21 +24,30 @@ export const uploadLesson = async (req, res) => {
   course.lessons.push(lesson._id);
   await course.save();
   res.status(201).json({ message: "Lesson uploaded successfully", lesson });
+} catch (error) {
+  next(error);
+}
 };
 
 // Get all lessons in a course
-export const getLessonsByCourse = async (req, res) => {
-  const { courseId } = req.params;
-  const lessons = await Lesson.find({ course: courseId }).sort({ order: 1 });
-  res.json(lessons);
+export const getLessonsByCourse = async (req, res,next) => {
+  try {
+    const { courseId } = req.params;
+    const lessons = await Lesson.find({ course: courseId }).sort({ order: 1 });
+    res.json(lessons);
+  } catch (error) {
+    next(error);
+  }
 };
 
 // Get single lesson (with access control)
-export const getLesson = async (req, res) => {
-  const lesson = await Lesson.findById(req.params.lessonId);
-  if (!lesson) {
-    return res.status(404).json({ message: "Lesson not found" });
-  }
+export const getLesson = async (req, res,next) => {
+  try {
+    const lesson = await Lesson.findById(req.params.lessonId);
+    if (!lesson) {
+      return res.status(404).json({ message: "Lesson not found" });
+    }
+  
 
   const course = await Course.findById(lesson.course);
   if (!course) {
@@ -69,5 +79,8 @@ export const getLesson = async (req, res) => {
   }
 
   res.json({ success: true, lesson });
+  } catch (error) {
+    next(error);
+  }
 };
 

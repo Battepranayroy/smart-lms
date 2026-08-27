@@ -2,7 +2,7 @@ import Review from "../models/Review.js";
 import Course from "../models/Course.js";
 
 // Add a review
-export const addReview = async (req, res) => {
+export const addReview = async (req, res,next) => {
   try {
     const { courseId, rating, comment } = req.body;
     const userId = req.user._id;
@@ -45,6 +45,7 @@ export const addReview = async (req, res) => {
       return res.status(400).json({
         message: "You have already reviewed this course"
       });
+      next(error);
     }
     res.status(500).json({ success: false, message: error.message });
   }
@@ -61,13 +62,13 @@ export const getCourseReviews = async (req, res) => {
 
     res.json({ success: true, reviews });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 
 // Update a review
-export const updateReview = async (req, res) => {
+export const updateReview = async (req, res,next) => {
   try {
     const { reviewId } = req.params;
     const { rating, comment } = req.body;
@@ -97,12 +98,12 @@ export const updateReview = async (req, res) => {
 
     res.json({ success: true, review });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 // Delete a review
-export const deleteReview = async (req, res) => {
+export const deleteReview = async (req, res,next) => {
   try {
     const { reviewId } = req.params;
     const userId = req.user._id;
@@ -131,6 +132,6 @@ export const deleteReview = async (req, res) => {
 
     res.json({ success: true, message: "Review deleted" });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };

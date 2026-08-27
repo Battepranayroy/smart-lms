@@ -11,11 +11,17 @@ import progressRoutes from "./routes/progressRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import enrollRoutes from "./routes/enrollRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import {errorHandler} from "./middlewares/errorMiddleware.js";
 import path from "path";
 
 
-
 dotenv.config();// loads all .env variables into process.env
+
+
+// Sentry.captureMessage("LearnFlow Sentry test");
+// Sentry.captureException(
+//   new Error("LearnFlow Sentry exception test")
+// );
 const app=express();// create a server
 const PORT=process.env.PORT || 4000;
 
@@ -39,12 +45,13 @@ app.use('/api/auth',authRoutes)
 app.use("/api/courses", courseRoutes);
 app.use("/api/lessons", lessonRoutes);
 app.use("/api/progress", progressRoutes);
-app.use("api/enroll",enrollRoutes);
+app.use("/api/enroll",enrollRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/admin", adminRoutes);
 app.get('/', (req, res) => {
   res.send("Default route: Server is working!");
 });
+app.use(errorHandler);
 
 //start the server;
 
