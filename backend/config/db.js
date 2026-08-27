@@ -10,4 +10,3 @@ export const connectDB = async()=>{
         console.error("MongoDb connection failed",err.message)
     }
 }
-hi there

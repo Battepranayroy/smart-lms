@@ -1,7 +1,8 @@
 import Course from "../models/Course.js";
-
+import * as Sentry from "@sentry/node";
 // Create Course
-export const createCourse = async (req, res) => {
+export const createCourse = async (req, res,next) => {
+  try {
   const { title, description, price, category,tags } = req.body;
   const course = await Course.create({
     title,
@@ -12,10 +13,13 @@ export const createCourse = async (req, res) => {
     instructor: req.user._id
   });
   res.status(201).json({ message: "Course created successfully", course });
+}catch (error) {
+  next(error);
+}
 };
 
 // Get all courses
-export const getAllCourses = async (req, res) => {
+export const getAllCourses = async (req, res,next) => {
   try {
     const { title, category, minPrice, maxPrice, sort } = req.query;
 
@@ -45,19 +49,29 @@ export const getAllCourses = async (req, res) => {
     else if (sort === "rating") sortOption.averageRating = -1;
     else sortOption.createdAt = -1; // popularity / default
 
-    const courses = await Course.find(filter)
+    const courses = await Sentry.startSpan(
+  {
+    name: "Fetch all courses",
+    op: "course.fetch",
+  },
+  async () => {
+     await new Promise(resolve => setTimeout(resolve, 2000));
+    return await Course.find(filter)
       .sort(sortOption)
       .populate("instructor", "name email");
+  }
+);
 
     res.json(courses);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching courses", error });
+    next(error);
   }
 };
 
 
 // Enroll in course
-export const enrollCourse = async (req, res) => {
+export const enrollCourse = async (req, res,next) => {
+  try {
   const { courseId } = req.params;
 
   const course = await Course.findById(courseId);
@@ -80,11 +94,14 @@ export const enrollCourse = async (req, res) => {
     message: "Enrolled successfully",
     course
   });
+}catch (error) {
+  next(error);  
+}
 };
 
 
 // Get total enrollments per course category
-export const getCourseStats = async (req, res) => {
+export const getCourseStats = async (req, res,next) => {
   try {
     const stats = await Course.aggregate([
       {
@@ -99,7 +116,7 @@ export const getCourseStats = async (req, res) => {
 
     res.status(200).json(stats);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching stats", error });
+    next(error);
   }
 };
 
@@ -136,13 +153,12 @@ export const updateCourse = async (req, res) => {
       course: updatedCourse,
     });
   } catch (error) {
-    console.error('Error updating course:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    next(error);
   }
 };
 
 //  Delete Course
-export const deleteCourse = async (req, res) => {
+export const deleteCourse = async (req, res,next) => {
   try {
     const { id } = req.params;
 
@@ -160,14 +176,13 @@ export const deleteCourse = async (req, res) => {
 
     res.status(200).json({ message: 'Course deleted successfully' });
   } catch (error) {
-    console.error('Error deleting course:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    next(error);
   }
 };
 
 //better search results purpose
 
-export const searchCourses = async (req, res) => {
+export const searchCourses = async (req, res,next) => {
   try {
     const { title, category, tag } = req.query;
 
@@ -183,13 +198,14 @@ export const searchCourses = async (req, res) => {
 
     res.json({ success: true, courses });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 /*get catergory count to update the ui with courses count based on the category*/
 
-export const getCategoryStats = async (req, res) => {
+export const getCategoryStats = async (req, res,next) => {
+  try{
   const stats = await Course.aggregate([
     {
       $group: {
@@ -200,20 +216,31 @@ export const getCategoryStats = async (req, res) => {
   ]);
 
   res.json(stats);
+}
+  catch (error) {
+    next(error);
+  }
+
+
 };
 
 /*featured courses*/
-export const getFeaturedCourses = async (req, res) => {
-  const courses = await Course.find()
-    .sort({ averageRating: -1 })   // highest rating first
-    .limit(4)
-    .populate("instructor", "name");
+export const getFeaturedCourses = async (req, res,next) => {
+  try {
+    const courses = await Course.find()
+      .sort({ averageRating: -1 })   // highest rating first
+      .limit(4)
+      .populate("instructor", "name");
 
   res.json(courses);
+  }
+  catch (error) {
+    next(error);
+  }
 };
 
 //get course by Id
-export const getCourseById = async (req, res) => {
+export const getCourseById = async (req, res,next) => {
   try {
     const { id } = req.params;
 
@@ -230,9 +257,6 @@ export const getCourseById = async (req, res) => {
 
     res.status(200).json(course);
   } catch (error) {
-    res.status(500).json({
-      message: "Error fetching course",
-      error: error.message,
-    });
+    next(error);
   }
 };
