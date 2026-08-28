@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-
 import Home from './pages/Home';
 import Courses from './pages/Courses';
 import CourseDetail from './pages/CourseDetail';
@@ -18,11 +17,15 @@ import MyCourses from './pages/instructor/MyCourses';
 import AdminDashboard from "./pages/AdminDashboard";
 import CoursePlayer from './pages/CoursePlayer';
 import InstructorLayout from "./layouts/InstructorLayout";
+import useSentryUser from "./features/useSentryUser";
 
 export default function App(){
 
+  useSentryUser();
+  
   return(
     <BrowserRouter>
+     
       <Navbar />
       <Routes>
 

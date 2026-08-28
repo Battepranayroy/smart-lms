@@ -5,6 +5,7 @@ export default function Hero() {
   const navigate = useNavigate();
 
   return (
+    
     <section className="pt-28 bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
       <div className="max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
 
