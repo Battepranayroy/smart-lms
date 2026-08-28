@@ -15,12 +15,13 @@ import { Link } from "react-router-dom";
 
 
 export default function Home() {
-
+   
   const { data: categories = [] } = useGetCategoryStatsQuery();
   const { data: coursesData, isLoading: loadingCourses } = useGetCoursesQuery();
   const { data: categoriesData, isLoading: loadingCats } = useGetCategoriesQuery();
   const { data: featuredCourses = [], isLoading } = useGetFeaturedCoursesQuery();
-
+  const navigate = useNavigate();
+  // throw new Error("SENTRY_REACT_ERROR_BOUNDARY_TEST");
   const ALL_CATEGORIES = [
     { id: "Business", icon: <FaBriefcase /> },
     { id: "Data Science", icon: <FaChartLine /> },
@@ -30,7 +31,7 @@ export default function Home() {
     { id: "Web Development", icon: <FaCode /> },
   ];
 
-  const navigate = useNavigate();
+  
 
   const categoryCountMap = categories.reduce((acc, item) => {
     acc[item._id] = item.count;
@@ -41,8 +42,11 @@ export default function Home() {
   if (loadingCourses || loadingCats)
     return <p className="pt-20 text-center text-xl">Loading...</p>;
 
+ 
+
   return (
     <>
+      
       <Hero />
       {/* BROWSE CATEGORIES */}
       <section className="py-16 bg-gray-50">
